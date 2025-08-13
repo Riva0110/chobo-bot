@@ -50,9 +50,11 @@ async function lookupWord(word) {
   }
 }
 
-serve({
-  fetch: app.fetch,
-  port: process.env.PORT || 3000,
-});
+// serve({
+//   fetch: app.fetch,
+//   port: process.env.PORT || 3000,
+// });
 
-console.log(`🚀 Server is running at http://localhost:${process.env.PORT}`);
+// console.log(`🚀 Server is running at http://localhost:${process.env.PORT}`);
+
+export default app; // Vercel Hono 必須 export 預設 app
