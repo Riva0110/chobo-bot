@@ -6,6 +6,8 @@ import "dotenv/config"; // 載入 .env 檔
 
 const app = new Hono();
 
+const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+
 // 從 LINE Developers 拿到的
 const config = {
   channelAccessToken: process.env.TOKEN,
@@ -20,21 +22,62 @@ app.post("/", async (c) => {
 
   for (let event of events) {
     if (event.type === "message" && event.message.type === "text") {
-      const word = event.message.text.trim();
-      const meaning = await lookupWord(word);
+      const word = event.message.text;
+      const meaning = await generateDefinition(word);
       await client.replyMessage(event.replyToken, {
         type: "text",
-        text: `${meaning}
-        
-https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${word}
-        `,
+        text: meaning,
       });
     }
   }
 
+  //   for (let event of events) {
+  //     if (event.type === "message" && event.message.type === "text") {
+  //       const word = event.message.text.trim();
+  //       const meaning = await lookupWord(word);
+  //       await client.replyMessage(event.replyToken, {
+  //         type: "text",
+  //         text: `${meaning}
+
+  // https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${word}
+  //         `,
+  //       });
+  //     }
+  //   }
+
   // 一定要回 200，否則 LINE 會報錯
   return c.text("OK", 200);
 });
+
+async function generateDefinition(word) {
+  try {
+    const response = await axios.post(
+      "https://api.openai.com/v1/chat/completions",
+      {
+        model: "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "你是一位英文老師，請用繁體中文及英文簡單解釋單字常見重點，並提供兩個英文例句。",
+          },
+          { role: "user", content: `解釋單字 "${word}"` },
+        ],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${OPENAI_API_KEY}`,
+        },
+      }
+    );
+
+    const answer = response.data.choices[0].message.content;
+    return answer;
+  } catch (error) {
+    return "OpenAI API 請求失敗";
+  }
+}
 
 // 查單字（用免費 API 例如 Dictionary API）
 async function lookupWord(word) {
