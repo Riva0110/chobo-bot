@@ -52,19 +52,13 @@ app.post("/", async (c) => {
 async function generateDefinition(word) {
   try {
     // 呼叫 OpenAI API
-    const completion = await openAIclient.chat.completions.create({
+    const response = await openAIclient.responses.create({
       model: "gpt-4o-mini",
-      messages: [
-        {
-          role: "system",
-          content:
-            "你是一位英文老師，請用繁體中文及英文簡易解釋單字，並提供兩個英文例句。",
-        },
-        { role: "user", content: `解釋單字 "${word}"` },
-      ],
+      input:
+        "你是一位英文老師，請用繁體中文及英文簡易解釋單字，並提供兩個英文例句。",
     });
 
-    return completion.choices[0].message.content;
+    return response;
   } catch (error) {
     return `${error}`;
   }
