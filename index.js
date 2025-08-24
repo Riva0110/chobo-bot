@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { Client } from "@line/bot-sdk";
 import axios from "axios";
+import OpenAI from "openai";
 
 import "dotenv/config"; // 載入 .env 檔
 
