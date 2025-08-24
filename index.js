@@ -2,18 +2,18 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { Client } from "@line/bot-sdk";
 import axios from "axios";
+
 import "dotenv/config"; // 載入 .env 檔
 
 const app = new Hono();
-
-const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
+const openAIclient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 // 從 LINE Developers 拿到的
 const config = {
   channelAccessToken: process.env.TOKEN,
   channelSecret: process.env.SECRET,
 };
-const client = new Client(config);
+const lineClient = new Client(config);
 
 // Webhook 接收訊息
 app.post("/", async (c) => {
@@ -24,7 +24,7 @@ app.post("/", async (c) => {
     if (event.type === "message" && event.message.type === "text") {
       const word = event.message.text;
       const meaning = await generateDefinition(word);
-      await client.replyMessage(event.replyToken, {
+      await lineClient.replyMessage(event.replyToken, {
         type: "text",
         text: meaning,
       });
@@ -51,29 +51,20 @@ app.post("/", async (c) => {
 
 async function generateDefinition(word) {
   try {
-    const response = await axios.post(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content:
-              "你是一位英文老師，請用繁體中文及英文簡單解釋單字常見重點，並提供兩個英文例句。",
-          },
-          { role: "user", content: `解釋單字 "${word}"` },
-        ],
-      },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${OPENAI_API_KEY}`,
+    // 呼叫 OpenAI API
+    const completion = await openAIclient.chat.completions.create({
+      model: "gpt-4o-mini",
+      messages: [
+        {
+          role: "system",
+          content:
+            "你是一位英文老師，請用繁體中文及英文簡易解釋單字，並提供兩個英文例句。",
         },
-      }
-    );
+        { role: "user", content: `解釋單字 "${word}"` },
+      ],
+    });
 
-    const answer = response.data.choices[0].message.content;
-    return answer;
+    return completion.choices[0].message.content;
   } catch (error) {
     return `${error}`;
   }
