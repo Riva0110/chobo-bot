@@ -75,10 +75,11 @@ async function generateDefinition(word) {
     const answer = response.data.choices[0].message.content;
     return answer;
   } catch (error) {
-    return "OpenAI API 請求失敗";
+    return `${error}`;
   }
 }
 
+// "OpenAI API 請求失敗"
 // 查單字（用免費 API 例如 Dictionary API）
 async function lookupWord(word) {
   try {
