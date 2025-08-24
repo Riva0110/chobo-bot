@@ -6,7 +6,7 @@ import axios from "axios";
 import "dotenv/config"; // 載入 .env 檔
 
 const app = new Hono();
-const openAIclient = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openAIclient = new OpenAI();
 
 // 從 LINE Developers 拿到的
 const config = {
@@ -54,11 +54,10 @@ async function generateDefinition(word) {
     // 呼叫 OpenAI API
     const response = await openAIclient.responses.create({
       model: "gpt-4o-mini",
-      input:
-        "你是一位英文老師，請用繁體中文及英文簡易解釋單字，並提供兩個英文例句。",
+      input: `你是一位英文老師，請用繁體中文及英文簡易解釋單字或片語：${word}，並提供兩個英文例句。`,
     });
 
-    return response;
+    return response.output[0].content[0].text;
   } catch (error) {
     return `${error}`;
   }
