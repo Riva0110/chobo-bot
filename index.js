@@ -35,15 +35,15 @@ app.post("/", async (c) => {
         type: "text",
         text: `「${result.word}」
 
-      ${result.meaning_zh}
+${result.meaning_zh}
 
-      ${result.meaning_en}
+${result.meaning_en}
 
-      🚩例句：
+🚩例句：
 
-      1. ${result.examples[0]}
+1. ${result.examples[0]}
 
-      2. ${result.examples[1]}
+2. ${result.examples[1]}
         `,
       });
     }
