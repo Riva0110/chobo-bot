@@ -3,6 +3,7 @@ import { serve } from "@hono/node-server";
 import { Client } from "@line/bot-sdk";
 import axios from "axios";
 import OpenAI from "openai";
+import { connectDB } from "./mongo";
 
 import "dotenv/config"; // 載入 .env 檔
 
@@ -20,31 +21,34 @@ const lineClient = new Client(config);
 app.post("/", async (c) => {
   const body = await c.req.json(); // 解析 JSON
   const events = body.events;
+  const db = await connectDB();
 
   for (let event of events) {
     if (event.type === "message" && event.message.type === "text") {
-      const word = event.message.text;
-      const meaning = await generateDefinition(word);
+      const word = event.message.text.trim();
+      const result = await generateDefinition(word);
+      await db.collection("vocabulary").insertOne({
+        ...result,
+        createdAt: new Date(),
+      });
+
       await lineClient.replyMessage(event.replyToken, {
         type: "text",
-        text: meaning,
+        text: `「${result.word}」
+
+      ${result.meaning_zh}
+
+      ${result.meaning_en}
+
+      🚩例句：
+
+      1. ${result.examples[0]}
+
+      2. ${result.examples[1]}
+        `,
       });
     }
   }
-
-  //   for (let event of events) {
-  //     if (event.type === "message" && event.message.type === "text") {
-  //       const word = event.message.text.trim();
-  //       const meaning = await lookupWord(word);
-  //       await client.replyMessage(event.replyToken, {
-  //         type: "text",
-  //         text: `${meaning}
-
-  // https://dictionary.cambridge.org/zht/%E8%A9%9E%E5%85%B8/%E8%8B%B1%E8%AA%9E-%E6%BC%A2%E8%AA%9E-%E7%B9%81%E9%AB%94/${word}
-  //         `,
-  //       });
-  //     }
-  //   }
 
   // 一定要回 200，否則 LINE 會報錯
   return c.text("OK", 200);
@@ -55,22 +59,24 @@ async function generateDefinition(word) {
     // 呼叫 OpenAI API
     const response = await openAIclient.responses.create({
       model: "gpt-4o-mini",
-      input: `你是一位英文老師，請嚴格依照以下格式輸出單字的簡單常用的意思、情境及例句：
+      response_format: { type: "json" }, // 強制回傳 JSON
+      input: `
+你是一位英文老師，請極度嚴格依照以下 JSON 格式輸出：
+{
+  "word": string,       // 單字
+  "meaning_zh": string, // 繁體中文解釋
+  "meaning_en": string, // 英文解釋
+  "examples": string[]  // 例句，請給兩個例句
+}
 
-「${word}」
+查詢的單字：${word}
 
-繁體中文一句話解釋
-
-英文一句話解釋
-
-🚩例句：
-
-1. 第一個英文例句
-
-2. 第二個英文例句`,
+請只輸出 JSON，不要額外文字。
+如查詢不到單字，請輸出 null
+`,
     });
 
-    return response.output[0].content[0].text;
+    return JSON.parse(response.output[0].content[0].text);
   } catch (error) {
     return `${error}`;
   }
