@@ -30,8 +30,8 @@ app.post("/", async (c) => {
       let replyText;
       if (result.error) replyText = "OpenAI API 請求失敗，請稍後再試";
       if (result === null) replyText = `查無「${word}」的解釋`;
-
-      replyText = `「${result.word}」
+      if (result && !result.error) {
+        replyText = `「${result.word}」
 
 ${result.meaning_zh}
 
@@ -42,6 +42,7 @@ ${result.meaning_en}
 1. ${result.examples[0]}
 
 2. ${result.examples[1]}`;
+      }
 
       await lineClient.replyMessage(event.replyToken, {
         type: "text",
