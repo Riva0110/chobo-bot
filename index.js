@@ -1,11 +1,10 @@
 import { Hono } from "hono";
+import "dotenv/config"; // 載入 .env 檔
 import { serve } from "@hono/node-server";
 import { Client } from "@line/bot-sdk";
 import axios from "axios";
 import OpenAI from "openai";
-import { connectDB } from "./mongo";
-
-import "dotenv/config"; // 載入 .env 檔
+import { connectDB } from "./mongo.js";
 
 const app = new Hono();
 const openAIclient = new OpenAI();

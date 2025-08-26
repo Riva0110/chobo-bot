@@ -1,9 +1,9 @@
-import { MongoClient, Db } from "mongodb";
+import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGO_URI as string;
+const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
 
-let db: Db;
+let db;
 
 export async function connectDB() {
   if (!db) {
