@@ -58,7 +58,6 @@ async function generateDefinition(word) {
     // 呼叫 OpenAI API
     const response = await openAIclient.responses.create({
       model: "gpt-4o-mini",
-      response_format: { type: "json" }, // 強制回傳 JSON
       input: `
 你是一位英文老師，請極度嚴格依照以下 JSON 格式輸出：
 {
