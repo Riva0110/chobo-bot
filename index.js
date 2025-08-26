@@ -28,8 +28,8 @@ app.post("/", async (c) => {
       const result = await generateDefinition(word);
 
       let replyText;
-      if (result.error) replyText = "OpenAI API 請求失敗，請稍後再試";
-      if (result === null) replyText = `查無「${word}」的解釋`;
+      if (result.error || result === null) replyText = `查無「${word}」的解釋`;
+
       if (result && !result.error) {
         replyText = `「${result.word}」
 
@@ -42,16 +42,16 @@ ${result.meaning_en}
 1. ${result.examples[0]}
 
 2. ${result.examples[1]}`;
+
+        await db.collection("vocabulary").insertOne({
+          ...result,
+          createdAt: new Date(),
+        });
       }
 
       await lineClient.replyMessage(event.replyToken, {
         type: "text",
         text: replyText,
-      });
-
-      await db.collection("vocabulary").insertOne({
-        ...result,
-        createdAt: new Date(),
       });
     }
   }
