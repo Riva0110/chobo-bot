@@ -26,14 +26,12 @@ app.post("/", async (c) => {
     if (event.type === "message" && event.message.type === "text") {
       const word = event.message.text.trim();
       const result = await generateDefinition(word);
-      await db.collection("vocabulary").insertOne({
-        ...result,
-        createdAt: new Date(),
-      });
 
-      await lineClient.replyMessage(event.replyToken, {
-        type: "text",
-        text: `「${result.word}」
+      let replyText;
+      if (result.error) replyText = "OpenAI API 請求失敗，請稍後再試";
+      if (result === null) replyText = `查無「${word}」的解釋`;
+
+      replyText = `「${result.word}」
 
 ${result.meaning_zh}
 
@@ -43,8 +41,16 @@ ${result.meaning_en}
 
 1. ${result.examples[0]}
 
-2. ${result.examples[1]}
-        `,
+2. ${result.examples[1]}`;
+
+      await lineClient.replyMessage(event.replyToken, {
+        type: "text",
+        text: replyText,
+      });
+
+      await db.collection("vocabulary").insertOne({
+        ...result,
+        createdAt: new Date(),
       });
     }
   }
@@ -76,7 +82,7 @@ async function generateDefinition(word) {
 
     return JSON.parse(response.output[0].content[0].text);
   } catch (error) {
-    return `${error}`;
+    return { error };
   }
 }
 
