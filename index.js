@@ -16,37 +16,49 @@ const config = {
 };
 const lineClient = new Client(config);
 
+const replyFormat = (data) =>
+  `「${data.word}」
+
+${data.meaning_zh}
+
+${data.meaning_en}
+
+🚩例句：
+
+1. ${data.examples[0]}
+
+2. ${data.examples[1]}`;
+
 // Webhook 接收訊息
 app.post("/", async (c) => {
   const body = await c.req.json(); // 解析 JSON
   const events = body.events;
   const db = await connectDB();
+  const collection = db.collection("vocabulary");
 
   for (let event of events) {
     if (event.type === "message" && event.message.type === "text") {
       const word = event.message.text.trim();
-      const result = await generateDefinition(word);
 
       let replyText;
-      if (result.error || result === null) replyText = `查無「${word}」的解釋`;
+      const resultFromDb = await collection.findOne({ word });
 
-      if (result && !result.error) {
-        replyText = `「${result.word}」
+      if (resultFromDb) {
+        replyText = replyFormat(resultFromDb);
+      } else {
+        const resultFromAI = await generateDefinition(word);
 
-${result.meaning_zh}
+        if (resultFromAI.error || resultFromAI === null)
+          replyText = `查無「${word}」的解釋`;
 
-${result.meaning_en}
+        if (resultFromAI && !resultFromAI.error) {
+          replyText = replyFormat(resultFromAI);
 
-🚩例句：
-
-1. ${result.examples[0]}
-
-2. ${result.examples[1]}`;
-
-        await db.collection("vocabulary").insertOne({
-          ...result,
-          createdAt: new Date(),
-        });
+          await db.collection("vocabulary").insertOne({
+            ...resultFromAI,
+            createdAt: new Date(),
+          });
+        }
       }
 
       await lineClient.replyMessage(event.replyToken, {
@@ -84,21 +96,6 @@ async function generateDefinition(word) {
     return JSON.parse(response.output[0].content[0].text);
   } catch (error) {
     return { error };
-  }
-}
-
-// "OpenAI API 請求失敗"
-// 查單字（用免費 API 例如 Dictionary API）
-async function lookupWord(word) {
-  try {
-    const res = await axios.get(
-      `https://api.dictionaryapi.dev/api/v2/entries/en/${word}`
-    );
-    const definitions = res.data[0]?.meanings[0]?.definitions;
-    if (!definitions) return `找不到單字「${word}」的解釋`;
-    return definitions[0].definition; // 只回第一個定義
-  } catch (err) {
-    return `查詢「${word}」時出錯`;
   }
 }
 
