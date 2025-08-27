@@ -76,7 +76,7 @@ async function generateDefinition(word) {
 
 查詢的單字或片語等英文詞句：${word}
 
-請只輸出 JSON，不要額外文字。
+請只輸出 JSON，不要額外文字及其他排版。
 如查詢不到單字或片語等英文詞句，請輸出 null
 `,
     });
