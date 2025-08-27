@@ -1,10 +1,11 @@
-import { Hono } from "hono";
 import "dotenv/config"; // 載入 .env 檔
+import { Hono } from "hono";
+import OpenAI from "openai";
 import { serve } from "@hono/node-server";
 import { Client } from "@line/bot-sdk";
-import axios from "axios";
-import OpenAI from "openai";
+
 import { connectDB } from "./mongo.js";
+import { replyFormat, promptInput } from "./utils.js";
 
 const app = new Hono();
 const openAIclient = new OpenAI();
@@ -15,19 +16,6 @@ const config = {
   channelSecret: process.env.SECRET,
 };
 const lineClient = new Client(config);
-
-const replyFormat = (data) =>
-  `「${data.word}」
-
-${data.meaning_zh}
-
-${data.meaning_en}
-
-🚩例句：
-
-1. ${data.examples[0]}
-
-2. ${data.examples[1]}`;
 
 // Webhook 接收訊息
 app.post("/", async (c) => {
@@ -77,20 +65,7 @@ async function generateDefinition(word) {
     // 呼叫 OpenAI API
     const response = await openAIclient.responses.create({
       model: "gpt-4o-mini",
-      input: `
-你是一位英文老師，請極度嚴格依照以下 JSON 格式輸出：
-{
-  "word": string,       // 單字或片語等英文詞句
-  "meaning_zh": string, // 繁體中文解釋
-  "meaning_en": string, // 英文解釋
-  "examples": string[]  // 例句，請給兩個例句
-}
-
-查詢的單字或片語等英文詞句：${word}
-
-請只輸出 JSON，不要額外文字及其他排版。
-如查詢不到單字或片語等英文詞句，請輸出 null
-`,
+      input: promptInput(word),
     });
 
     return JSON.parse(response.output[0].content[0].text);
