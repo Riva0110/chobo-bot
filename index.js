@@ -18,7 +18,7 @@ const config = {
 const lineClient = new Client(config);
 
 // Webhook 接收訊息
-app.post("/", async (c) => {
+app.post("/search-words", async (c) => {
   const body = await c.req.json(); // 解析 JSON
   const events = body.events;
   const db = await connectDB();
