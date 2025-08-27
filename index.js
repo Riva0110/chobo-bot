@@ -68,16 +68,16 @@ async function generateDefinition(word) {
       input: `
 你是一位英文老師，請極度嚴格依照以下 JSON 格式輸出：
 {
-  "word": string,       // 單字
+  "word": string,       // 單字或片語等英文詞句
   "meaning_zh": string, // 繁體中文解釋
   "meaning_en": string, // 英文解釋
   "examples": string[]  // 例句，請給兩個例句
 }
 
-查詢的單字：${word}
+查詢的單字或片語等英文詞句：${word}
 
 請只輸出 JSON，不要額外文字。
-如查詢不到單字，請輸出 null
+如查詢不到單字或片語等英文詞句，請輸出 null
 `,
     });
 
