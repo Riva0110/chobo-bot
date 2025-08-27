@@ -22,17 +22,32 @@ app.post("/", async (c) => {
   const body = await c.req.json(); // 解析 JSON
   const events = body.events;
   const db = await connectDB();
-  const collection = db.collection("vocabulary");
+  const vocabulary = db.collection("vocabulary");
+  const userRecord = db.collection("userRecord");
 
   for (let event of events) {
     if (event.type === "message" && event.message.type === "text") {
+      const groupId = event.source.groupId;
       const word = event.message.text.trim();
 
       let replyText;
-      const resultFromDb = await collection.findOne({ word });
+      const resultFromDb = await vocabulary.findOne({ word });
 
       if (resultFromDb) {
         replyText = replyFormat(resultFromDb);
+        const isSearched = await userRecord.findOne({ word, groupId });
+        if (isSearched) {
+          await userRecord.updateOne(
+            { word, groupId },
+            { $push: { history: { searchedAt: new Date() } } }
+          );
+        } else {
+          await userRecord.insertOne({
+            word,
+            groupId,
+            history: [{ searchedAt: new Date() }],
+          });
+        }
       } else {
         const resultFromAI = await generateDefinition(word);
 
@@ -41,10 +56,11 @@ app.post("/", async (c) => {
 
         if (resultFromAI && !resultFromAI.error) {
           replyText = replyFormat(resultFromAI);
-
-          await db.collection("vocabulary").insertOne({
-            ...resultFromAI,
-            createdAt: new Date(),
+          await vocabulary.insertOne(resultFromAI);
+          await userRecord.insertOne({
+            word,
+            groupId,
+            history: [{ searchedAt: new Date() }],
           });
         }
       }
