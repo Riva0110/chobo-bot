@@ -27,7 +27,7 @@ app.post("/search-words", async (c) => {
 
   for (let event of events) {
     if (event.type === "message" && event.message.type === "text") {
-      const groupId = event.source.groupId;
+      const groupId = event.source.groupId || event.source.userId;
       const word = event.message.text.trim();
 
       let replyText;
