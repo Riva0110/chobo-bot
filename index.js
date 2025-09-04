@@ -3,6 +3,8 @@ import { Hono } from "hono";
 import OpenAI from "openai";
 import { serve } from "@hono/node-server";
 import { Client } from "@line/bot-sdk";
+import { put } from "@vercel/blob";
+import { parseBuffer } from "music-metadata";
 
 import { connectDB } from "./mongo.js";
 import { replyFormat, promptInput } from "./utils.js";
@@ -30,7 +32,8 @@ app.post("/search-words", async (c) => {
       const groupId = event.source.groupId || event.source.userId;
       const word = event.message.text.replace(/[^a-zA-Z\s'-]/g, "").trim();
 
-      let replyText;
+      let replyText = "";
+      let replyAudio = null;
       const resultFromDb = await vocabulary.findOne({ word });
 
       if (resultFromDb) {
@@ -56,7 +59,14 @@ app.post("/search-words", async (c) => {
 
         if (resultFromAI && !resultFromAI.error) {
           replyText = replyFormat(resultFromAI);
-          await vocabulary.insertOne(resultFromAI);
+
+          const audio = await generateAudio(word);
+          if (!audio.error) replyAudio = audio;
+
+          await vocabulary.insertOne({
+            ...resultFromAI,
+            ...(replyAudio && { audio }),
+          });
           await userRecord.insertOne({
             word,
             groupId,
@@ -65,10 +75,19 @@ app.post("/search-words", async (c) => {
         }
       }
 
-      await lineClient.replyMessage(event.replyToken, {
-        type: "text",
-        text: replyText,
-      });
+      await lineClient.replyMessage(event.replyToken, [
+        {
+          type: "text",
+          text: replyText,
+        },
+        ...(replyAudio && [
+          {
+            type: "audio",
+            originalContentUrl: replyAudio.url,
+            duration: replyAudio.duration,
+          },
+        ]),
+      ]);
     }
   }
 
@@ -90,11 +109,26 @@ async function generateDefinition(word) {
   }
 }
 
-// serve({
-//   fetch: app.fetch,
-//   port: process.env.PORT || 3000,
-// });
+async function generateAudio(word) {
+  try {
+    const ttsResponse = await openAIclient.audio.speech.create({
+      model: "gpt-4o-mini-tts",
+      voice: "alloy",
+      input: word,
+    });
 
-// console.log(`🚀 Server is running at http://localhost:${process.env.PORT}`);
+    const buffer = Buffer.from(await ttsResponse.arrayBuffer());
 
-export default app; // Vercel Hono 必須 export 預設 app
+    const { url } = await put(`tts/${word}.mp3`, buffer, {
+      access: "public", // 設定成公開可讀
+      contentType: "audio/mpeg", // 告訴瀏覽器是 MP3
+      token: process.env.BLOB_READ_WRITE_TOKEN, // 指定 token
+    });
+
+    const metadata = await parseBuffer(buffer, "audio/mpeg");
+
+    return { url, duration: Math.floor(metadata.format.duration * 1000) };
+  } catch (error) {
+    return { error };
+  }
+}
