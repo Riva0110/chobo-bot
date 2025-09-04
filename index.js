@@ -119,11 +119,15 @@ async function generateAudio(word) {
 
     const buffer = Buffer.from(await ttsResponse.arrayBuffer());
 
-    const { url } = await put(`tts/${word}.mp3`, buffer, {
-      access: "public", // 設定成公開可讀
-      contentType: "audio/mpeg", // 告訴瀏覽器是 MP3
-      token: process.env.BLOB_READ_WRITE_TOKEN, // 指定 token
-    });
+    const { url } = await put(
+      `tts/${word.replace(/[^a-zA-Z]/g, "")}.mp3`,
+      buffer,
+      {
+        access: "public", // 設定成公開可讀
+        contentType: "audio/mpeg", // 告訴瀏覽器是 MP3
+        token: process.env.BLOB_READ_WRITE_TOKEN, // 指定 token
+      }
+    );
 
     const metadata = await parseBuffer(buffer, "audio/mpeg");
     const durationSec = metadata.format.duration || 1;
