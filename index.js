@@ -132,3 +132,5 @@ async function generateAudio(word) {
     return { error };
   }
 }
+
+export default app; // Vercel Hono 必須 export 預設 app
