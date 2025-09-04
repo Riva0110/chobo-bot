@@ -126,8 +126,10 @@ async function generateAudio(word) {
     });
 
     const metadata = await parseBuffer(buffer, "audio/mpeg");
+    const durationSec = metadata.format.duration || 1;
+    const durationMs = Math.floor(durationSec * 1000);
 
-    return { url, duration: Math.floor(metadata.format.duration * 1000) };
+    return { url, duration: Math.max(1000, durationMs) };
   } catch (error) {
     return { error };
   }
