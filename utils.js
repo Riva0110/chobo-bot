@@ -3,7 +3,6 @@ import { put } from "@vercel/blob";
 import { parseBuffer } from "music-metadata";
 
 import { openAIclient } from "./lib/openAI.js";
-import { promptInput } from "./utils.js";
 
 export const replyFormat = (data) =>
   `「${data.word}」
