@@ -41,7 +41,11 @@ app.post("/search-words", async (c) => {
       } else {
         const resultFromAI = await generateDefinition(word);
 
-        if (resultFromAI?.error || resultFromAI === null)
+        if (
+          resultFromAI?.error ||
+          resultFromAI === null ||
+          resultFromAI === "null"
+        )
           replyText = `查無「${word}」的解釋`;
 
         if (resultFromAI && !resultFromAI?.error) {
