@@ -1,33 +1,10 @@
-/** @jsx jsx */
-
 import { Hono } from "hono";
-import { jsx } from "hono/jsx";
-import { renderToString } from "react-dom/server";
 
 import { connectDB } from "./lib/db.js";
 import { lineClient } from "./lib/lineClient.js";
 import { replyFormat, generateDefinition, generateAudio } from "./utils.js";
 
 const app = new Hono();
-
-// const Layout = ({ children }) => (
-//   <html>
-//     <head>
-//       <title>SSR with Hono</title>
-//     </head>
-//     <body>{children}</body>
-//   </html>
-// );
-
-// const Home = () => (
-//   <Layout>
-//     <h1>Hello, Hono + React SSR!</h1>
-//   </Layout>
-// );
-
-// app.get("/", (c) => {
-//   return c.html(renderToString(<Home />));
-// });
 
 // Webhook 接收訊息
 app.post("/search-words", async (c) => {
@@ -43,7 +20,7 @@ app.post("/search-words", async (c) => {
       const word = event.message.text.replace(/[^a-zA-Z\s'-]/g, "").trim();
 
       let replyText = "";
-      let replyAudio: { url: string; duration: number } | null = null;
+      let replyAudio = null;
       const resultFromDb = await vocabulary.findOne({ word });
 
       if (resultFromDb) {
@@ -75,7 +52,7 @@ app.post("/search-words", async (c) => {
           replyText = replyFormat(resultFromAI);
 
           const audio = await generateAudio(word);
-          if (!audio?.error && audio.url && audio.duration) {
+          if (!audio?.error) {
             replyAudio = audio;
           }
 
@@ -99,7 +76,7 @@ app.post("/search-words", async (c) => {
         ...(replyAudio
           ? [
               {
-                type: "audio" as "audio",
+                type: "audio",
                 originalContentUrl: replyAudio.url,
                 duration: replyAudio.duration,
               },
