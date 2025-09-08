@@ -1,13 +1,8 @@
-import "dotenv/config"; // 載入 .env 檔
 import { Hono } from "hono";
-
-import { put } from "@vercel/blob";
-import { parseBuffer } from "music-metadata";
 
 import { connectDB } from "./lib/db.js";
 import { lineClient } from "./lib/lineClient.js";
-import { openAIclient } from "./lib/openAI.js";
-import { replyFormat, promptInput } from "./utils.js";
+import { replyFormat, generateDefinition, generateAudio } from "./utils.js";
 
 const app = new Hono();
 
@@ -86,49 +81,5 @@ app.post("/search-words", async (c) => {
   // 一定要回 200，否則 LINE 會報錯
   return c.text("OK", 200);
 });
-
-async function generateDefinition(word) {
-  try {
-    // 呼叫 OpenAI API
-    const response = await openAIclient.responses.create({
-      model: "gpt-4o-mini",
-      input: promptInput(word),
-    });
-
-    return JSON.parse(response.output[0].content[0].text);
-  } catch (error) {
-    return { error };
-  }
-}
-
-async function generateAudio(word) {
-  try {
-    const ttsResponse = await openAIclient.audio.speech.create({
-      model: "gpt-4o-mini-tts",
-      voice: "alloy",
-      input: word,
-    });
-
-    const buffer = Buffer.from(await ttsResponse.arrayBuffer());
-
-    const { url } = await put(
-      `tts/${word.replace(/[^a-zA-Z]/g, "")}.mp3`,
-      buffer,
-      {
-        access: "public", // 設定成公開可讀
-        contentType: "audio/mpeg", // 告訴瀏覽器是 MP3
-        token: process.env.BLOB_READ_WRITE_TOKEN, // 指定 token
-      }
-    );
-
-    const metadata = await parseBuffer(buffer, "audio/mpeg");
-    const durationSec = metadata.format.duration || 1;
-    const durationMs = Math.floor(durationSec * 1000);
-
-    return { url, duration: Math.max(1000, durationMs) };
-  } catch (error) {
-    return { error };
-  }
-}
 
 export default app; // Vercel Hono 必須 export 預設 app
