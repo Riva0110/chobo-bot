@@ -1,23 +1,15 @@
 import "dotenv/config"; // 載入 .env 檔
 import { Hono } from "hono";
-import OpenAI from "openai";
-import { serve } from "@hono/node-server";
-import { Client } from "@line/bot-sdk";
+
 import { put } from "@vercel/blob";
 import { parseBuffer } from "music-metadata";
 
-import { connectDB } from "./mongo.js";
+import { connectDB } from "./lib/db.js";
+import { lineClient } from "./lib/lineClient.js";
+import { openAIclient } from "./lib/openAI.js";
 import { replyFormat, promptInput } from "./utils.js";
 
 const app = new Hono();
-const openAIclient = new OpenAI();
-
-// 從 LINE Developers 拿到的
-const config = {
-  channelAccessToken: process.env.TOKEN,
-  channelSecret: process.env.SECRET,
-};
-const lineClient = new Client(config);
 
 // Webhook 接收訊息
 app.post("/search-words", async (c) => {
