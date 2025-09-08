@@ -71,13 +71,15 @@ app.post("/search-words", async (c) => {
           type: "text",
           text: replyText,
         },
-        ...(replyAudio && [
-          {
-            type: "audio",
-            originalContentUrl: replyAudio.url,
-            duration: replyAudio.duration,
-          },
-        ]),
+        ...(replyAudio
+          ? [
+              {
+                type: "audio",
+                originalContentUrl: replyAudio.url,
+                duration: replyAudio.duration,
+              },
+            ]
+          : []),
       ]);
     }
   }
