@@ -41,14 +41,14 @@ app.post("/search-words", async (c) => {
       } else {
         const resultFromAI = await generateDefinition(word);
 
-        if (resultFromAI.error || resultFromAI === null)
+        if (resultFromAI?.error || resultFromAI === null)
           replyText = `查無「${word}」的解釋`;
 
-        if (resultFromAI && !resultFromAI.error) {
+        if (resultFromAI && !resultFromAI?.error) {
           replyText = replyFormat(resultFromAI);
 
           const audio = await generateAudio(word);
-          if (!audio.error) replyAudio = audio;
+          if (!audio?.error) replyAudio = audio;
 
           await vocabulary.insertOne({
             ...resultFromAI,
