@@ -1,3 +1,5 @@
+/** @jsx jsx */
+
 import { Hono } from "hono";
 import { jsx } from "hono/jsx";
 
@@ -23,7 +25,7 @@ const Home = () => (
 );
 
 app.get("/", (c) => {
-  return c.html(<Home />);
+  return c.html(String(<Home />));
 });
 
 // Webhook 接收訊息
@@ -40,7 +42,7 @@ app.post("/search-words", async (c) => {
       const word = event.message.text.replace(/[^a-zA-Z\s'-]/g, "").trim();
 
       let replyText = "";
-      let replyAudio = null;
+      let replyAudio: { url: string; duration: number } | null = null;
       const resultFromDb = await vocabulary.findOne({ word });
 
       if (resultFromDb) {
@@ -72,7 +74,9 @@ app.post("/search-words", async (c) => {
           replyText = replyFormat(resultFromAI);
 
           const audio = await generateAudio(word);
-          if (!audio?.error) replyAudio = audio;
+          if (!audio?.error && audio.url && audio.duration) {
+            replyAudio = { url: audio.url, duration: audio.duration };
+          }
 
           await vocabulary.insertOne({
             ...resultFromAI,
@@ -94,7 +98,7 @@ app.post("/search-words", async (c) => {
         ...(replyAudio
           ? [
               {
-                type: "audio",
+                type: "audio" as "audio",
                 originalContentUrl: replyAudio.url,
                 duration: replyAudio.duration,
               },
