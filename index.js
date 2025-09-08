@@ -1,10 +1,30 @@
 import { Hono } from "hono";
+import { jsx } from "hono/jsx";
 
 import { connectDB } from "./lib/db.js";
 import { lineClient } from "./lib/lineClient.js";
 import { replyFormat, generateDefinition, generateAudio } from "./utils.js";
 
 const app = new Hono();
+
+const Layout = ({ children }) => (
+  <html>
+    <head>
+      <title>SSR with Hono</title>
+    </head>
+    <body>{children}</body>
+  </html>
+);
+
+const Home = () => (
+  <Layout>
+    <h1>Hello, Hono + React SSR!</h1>
+  </Layout>
+);
+
+app.get("/", (c) => {
+  return c.html(<Home />);
+});
 
 // Webhook 接收訊息
 app.post("/search-words", async (c) => {
