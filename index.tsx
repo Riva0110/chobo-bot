@@ -2,6 +2,7 @@
 
 import { Hono } from "hono";
 import { jsx } from "hono/jsx";
+import { renderToString } from "react-dom/server";
 
 import { connectDB } from "./lib/db.js";
 import { lineClient } from "./lib/lineClient.js";
@@ -25,7 +26,7 @@ const Home = () => (
 );
 
 app.get("/", (c) => {
-  return c.html(String(<Home />));
+  return c.html(renderToString(<Home />));
 });
 
 // Webhook 接收訊息
