@@ -10,24 +10,24 @@ import { replyFormat, generateDefinition, generateAudio } from "./utils.js";
 
 const app = new Hono();
 
-const Layout = ({ children }) => (
-  <html>
-    <head>
-      <title>SSR with Hono</title>
-    </head>
-    <body>{children}</body>
-  </html>
-);
+// const Layout = ({ children }) => (
+//   <html>
+//     <head>
+//       <title>SSR with Hono</title>
+//     </head>
+//     <body>{children}</body>
+//   </html>
+// );
 
-const Home = () => (
-  <Layout>
-    <h1>Hello, Hono + React SSR!</h1>
-  </Layout>
-);
+// const Home = () => (
+//   <Layout>
+//     <h1>Hello, Hono + React SSR!</h1>
+//   </Layout>
+// );
 
-app.get("/", (c) => {
-  return c.html(renderToString(<Home />));
-});
+// app.get("/", (c) => {
+//   return c.html(renderToString(<Home />));
+// });
 
 // Webhook 接收訊息
 app.post("/search-words", async (c) => {
@@ -76,7 +76,7 @@ app.post("/search-words", async (c) => {
 
           const audio = await generateAudio(word);
           if (!audio?.error && audio.url && audio.duration) {
-            replyAudio = { url: audio.url, duration: audio.duration };
+            replyAudio = audio;
           }
 
           await vocabulary.insertOne({
