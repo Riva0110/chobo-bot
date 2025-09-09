@@ -8,12 +8,5 @@
     "outDir": "dist",
     "esModuleInterop": true
   },
-  "include": [
-    "index.tsx",
-    "lib/*.js",
-    "pages/*.tsx",
-    "lib/openAI.ts",
-    "lib/lineClient.ts",
-    "lib/db.ts"
-  ]
+  "include": ["index.tsx", "lib/**/*.ts", "pages/**/*.ts", "pages/**/*.tsx"]
 }

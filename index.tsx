@@ -128,6 +128,6 @@ app.post("/search-words", async (c) => {
   return c.text("OK", 200);
 });
 
-// serve(app);
+serve(app);
 
 export default app; // Vercel Hono 必須 export 預設 app
