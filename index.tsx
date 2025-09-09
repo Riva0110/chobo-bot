@@ -1,10 +1,48 @@
 import { Hono } from "hono";
+import { serve } from "@hono/node-server";
 
 import { connectDB } from "./lib/db.js";
 import { lineClient } from "./lib/lineClient.js";
 import { replyFormat, generateDefinition, generateAudio } from "./utils.js";
+import Home from "./pages/Home";
 
 const app = new Hono();
+
+app.get("/", async (c) => {
+  const db = await connectDB();
+  const userRecord = db.collection("userRecord");
+  const records = await userRecord
+    .aggregate([
+      {
+        $match: {
+          groupId: "Ca8f4a9df1a7722b8ed4d51527ab6e4b2",
+        },
+      },
+      {
+        $lookup: {
+          from: "vocabulary",
+          localField: "word",
+          foreignField: "word",
+          as: "vocabInfo",
+        },
+      },
+      { $unwind: "$vocabInfo" },
+      {
+        $project: {
+          _id: 0,
+          word: 1,
+          history: 1,
+          meaning_zh: "$vocabInfo.meaning_zh",
+          meaning_en: "$vocabInfo.meaning_en",
+          examples: "$vocabInfo.examples",
+          audio: "$vocabInfo.audio",
+        },
+      },
+    ])
+    .toArray();
+
+  return c.html(<Home records={records} />);
+});
 
 // Webhook 接收訊息
 app.post("/search-words", async (c) => {
@@ -89,5 +127,7 @@ app.post("/search-words", async (c) => {
   // 一定要回 200，否則 LINE 會報錯
   return c.text("OK", 200);
 });
+
+serve(app);
 
 export default app; // Vercel Hono 必須 export 預設 app
