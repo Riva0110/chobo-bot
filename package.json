@@ -2,10 +2,10 @@
   "name": "chobo-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "index.tsx",
   "type": "module",
   "scripts": {
-    "start": "node index.js",
+    "start": "tsx watch index.tsx",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
