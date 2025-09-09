@@ -40,7 +40,9 @@ export async function generateDefinition(word) {
       input: promptInput(word),
     });
 
-    return JSON.parse(response.output[0].content[0].text);
+    return JSON.parse(
+      (response.output[0] as { content: { text: string }[] }).content[0].text
+    );
   } catch (error) {
     return { error };
   }

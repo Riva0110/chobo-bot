@@ -4,7 +4,7 @@ import { serve } from "@hono/node-server";
 import { connectDB } from "./lib/db.js";
 import { lineClient } from "./lib/lineClient.js";
 import { replyFormat, generateDefinition, generateAudio } from "./utils.js";
-import Home from "./pages/Home";
+import Home from "./pages/Home.js";
 
 const app = new Hono();
 
@@ -114,7 +114,7 @@ app.post("/search-words", async (c) => {
         ...(replyAudio
           ? [
               {
-                type: "audio",
+                type: "audio" as "audio",
                 originalContentUrl: replyAudio.url,
                 duration: replyAudio.duration,
               },
