@@ -1,6 +1,19 @@
 {
   "compilerOptions": {
     "jsx": "react-jsx",
-    "jsxImportSource": "hono/jsx"
-  }
+    "jsxImportSource": "hono/jsx",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ES2022",
+    "outDir": "dist",
+    "esModuleInterop": true
+  },
+  "include": [
+    "index.tsx",
+    "lib/*.js",
+    "pages/*.tsx",
+    "lib/openAI.ts",
+    "lib/lineClient.ts",
+    "lib/db.ts"
+  ]
 }

@@ -1,4 +1,4 @@
-import Layout from "./Layout";
+import Layout from "./Layout.js";
 
 const Home = ({ records }) => {
   console.log(records);
