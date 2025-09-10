@@ -8,18 +8,18 @@
       }
     },
     {
-      "src": "src/index.ts",
+      "src": "src/**",
       "use": "@vercel/node"
     }
   ],
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "/src/index.ts"
+      "dest": "src/index.ts"
     },
     {
       "src": "/(.*)",
-      "dest": "/client/dist/$1"
+      "dest": "client/dist/$1"
     }
   ],
   "installCommand": "npm install --legacy-peer-deps && npm install --prefix client --legacy-peer-deps"
