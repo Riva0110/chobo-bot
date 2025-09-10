@@ -7,7 +7,8 @@
     "jsxImportSource": "hono/jsx",
     "moduleResolution": "bundler",
     "esModuleInterop": true,
-    "outDir": "./dist"
+    "outDir": "./dist",
+    "rootDir": "."
   },
   "include": ["**/*.tsx", "**/*.ts"]
 }
