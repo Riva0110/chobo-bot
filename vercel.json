@@ -1,14 +1,14 @@
 {
   "builds": [
     {
-      "src": "client/index.html",
+      "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
         "buildCommand": "npm run build"
       }
     },
     {
-      "src": "src/**/*.ts",
+      "src": "src/index.ts",
       "use": "@vercel/node"
     }
   ],
