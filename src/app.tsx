@@ -3,11 +3,10 @@ import { Hono } from "hono";
 import { connectDB } from "../lib/db.js";
 import { lineClient } from "../lib/lineClient.js";
 import { replyFormat, generateDefinition, generateAudio } from "../utils.js";
-import Home from "../pages/Home.js";
 
 const app = new Hono();
 
-app.get("/", async (c) => {
+app.get("/api/records", async (c) => {
   const db = await connectDB();
   const userRecord = db.collection("userRecord");
   const records = await userRecord
@@ -40,11 +39,11 @@ app.get("/", async (c) => {
     ])
     .toArray();
 
-  return c.html(<Home records={records} />);
+  return c.json(records);
 });
 
 // Webhook 接收訊息
-app.post("/search-words", async (c) => {
+app.post("/api/search-words", async (c) => {
   const body = await c.req.json(); // 解析 JSON
   const events = body.events;
   const db = await connectDB();
