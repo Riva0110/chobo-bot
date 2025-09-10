@@ -1,10 +1,9 @@
 import { Hono } from "hono";
-import { serve } from "@hono/node-server";
 
-import { connectDB } from "./lib/db.js";
-import { lineClient } from "./lib/lineClient.js";
-import { replyFormat, generateDefinition, generateAudio } from "./utils.js";
-import Home from "./pages/Home.js";
+import { connectDB } from "../lib/db";
+import { lineClient } from "../lib/lineClient";
+import { replyFormat, generateDefinition, generateAudio } from "../utils";
+import Home from "../pages/Home";
 
 const app = new Hono();
 
@@ -128,6 +127,4 @@ app.post("/search-words", async (c) => {
   return c.text("OK", 200);
 });
 
-serve(app);
-
-export default app; // Vercel Hono 必須 export 預設 app
+export default app;

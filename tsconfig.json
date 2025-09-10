@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "lib": ["ESNext", "dom"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
-    "module": "ESNext",
-    "moduleResolution": "Node",
-    "target": "ES2022",
-    "outDir": "dist",
-    "esModuleInterop": true
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "outDir": "./dist"
   },
-  "include": ["index.tsx", "lib/**/*.ts", "pages/**/*.ts", "pages/**/*.tsx"]
+  "include": ["**/*.tsx", "**/*.ts"]
 }
