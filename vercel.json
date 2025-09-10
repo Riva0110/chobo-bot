@@ -1,0 +1,25 @@
+{
+  "builds": [
+    {
+      "src": "client/dist/**",
+      "use": "@vercel/static-build"
+    },
+    {
+      "src": "src/**",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": "src/app.tsx"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "src/app.tsx"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "client/dist/$1"
+    }
+  ]
+}
