@@ -6,9 +6,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx",
     "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "outDir": "./dist",
-    "rootDir": "."
+    "esModuleInterop": true
   },
   "include": ["**/*.tsx", "**/*.ts"]
 }
