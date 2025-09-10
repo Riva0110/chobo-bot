@@ -127,4 +127,9 @@ app.post("/search-words", async (c) => {
   return c.text("OK", 200);
 });
 
+// 偵錯用：捕捉所有未匹配的路由
+app.all("*", (c) => {
+  return c.text(`DEBUG: Hono received a request for path: ${c.req.path}`);
+});
+
 export default app;
