@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 
-import { connectDB } from "../lib/db";
-import { lineClient } from "../lib/lineClient";
-import { replyFormat, generateDefinition, generateAudio } from "../utils";
-import Home from "../pages/Home";
+import { connectDB } from "../lib/db.js";
+import { lineClient } from "../lib/lineClient.js";
+import { replyFormat, generateDefinition, generateAudio } from "../utils.js";
+import Home from "../pages/Home.js";
 
 const app = new Hono();
 
