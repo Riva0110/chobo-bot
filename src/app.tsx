@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { serveStatic } from "@hono/node-server/serve-static";
+import { join } from "path";
 
 import { connectDB } from "./lib/db.js";
 import { lineClient } from "./lib/lineClient.js";
@@ -127,7 +128,7 @@ app.post("/api/search-words", async (c) => {
   return c.text("OK", 200);
 });
 
-app.use("*", serveStatic({ root: "./client/dist" }));
+app.use("*", serveStatic({ root: join(process.cwd(), "client/dist") }));
 
 // 偵錯用：捕捉所有未匹配的路由
 // app.all("*", (c) => {
