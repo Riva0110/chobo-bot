@@ -1,7 +1,8 @@
 import { Hono } from "hono";
+import { serveStatic } from "@hono/node-server/serve-static";
 
-import { connectDB } from "../lib/db.js";
-import { lineClient } from "../lib/lineClient.js";
+import { connectDB } from "./lib/db.js";
+import { lineClient } from "./lib/lineClient.js";
 import { replyFormat, generateDefinition, generateAudio } from "../utils.js";
 
 const app = new Hono();
@@ -126,9 +127,11 @@ app.post("/api/search-words", async (c) => {
   return c.text("OK", 200);
 });
 
+app.use("*", serveStatic({ root: "./client/dist" }));
+
 // 偵錯用：捕捉所有未匹配的路由
-app.all("*", (c) => {
-  return c.text(`DEBUG: Hono received a request for path: ${c.req.path}`);
-});
+// app.all("*", (c) => {
+//   return c.text(`DEBUG: Hono received a request for path: ${c.req.path}`);
+// });
 
 export default app;
