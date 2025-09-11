@@ -2,7 +2,7 @@ import "dotenv/config"; // 載入 .env 檔
 import { put } from "@vercel/blob";
 import { parseBuffer } from "music-metadata";
 
-import { openAIclient } from "./lib/openAI.js";
+import { openAIclient } from "./src/lib/openAI.js";
 
 export const replyFormat = (data) =>
   `「${data.word}」

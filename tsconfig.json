@@ -8,5 +8,5 @@
     "moduleResolution": "bundler",
     "esModuleInterop": true
   },
-  "include": ["**/*.tsx", "**/*.ts"]
+  "include": ["src/**/*", "index.ts"]
 }
