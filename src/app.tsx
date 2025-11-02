@@ -55,7 +55,7 @@ app.post("/api/search-words", async (c) => {
   for (let event of events) {
     if (event.type === "message" && event.message.type === "text") {
       const groupId = event.source.groupId || event.source.userId;
-      const word = event.message.text.replace(/[^a-zA-Z\s'-]/g, "").trim();
+      const word = event.message.text.replace(/[^a-zA-Z\s'’!?-]/g, "").trim();
 
       let replyText = "";
       let replyAudio = null;
