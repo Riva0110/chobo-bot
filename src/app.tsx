@@ -89,7 +89,7 @@ app.post("/api/search-words", async (c) => {
         if (resultFromAI && !resultFromAI?.error) {
           replyText = replyFormat(resultFromAI);
 
-          const audio = await generateAudio(word);
+          const audio = await generateAudio(resultFromAI.word);
           if (!audio?.error) {
             replyAudio = audio;
           }
@@ -99,7 +99,7 @@ app.post("/api/search-words", async (c) => {
             ...(replyAudio && { audio }),
           });
           await userRecord.insertOne({
-            word,
+            word: resultFromAI.word,
             groupId,
             history: [{ searchedAt: new Date() }],
           });
