@@ -76,6 +76,7 @@ app.post("/api/search-words", async (c) => {
             history: [{ searchedAt: new Date() }],
           });
         }
+        replyAudio = resultFromDb.audio;
       } else {
         const resultFromAI = await generateDefinition(word);
 
