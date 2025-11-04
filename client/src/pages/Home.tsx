@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import Flashcard from "../components/Flashcard";
 
 type RecordType = {
   word: string;
@@ -14,9 +15,9 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchRecords() {
+    async function randomFetchVocabulary() {
       try {
-        const res = await fetch("/api/records");
+        const res = await fetch("/api/review");
         const data = await res.json();
         setRecords(data);
       } catch (err) {
@@ -26,26 +27,19 @@ const Home = () => {
       }
     }
 
-    fetchRecords();
+    randomFetchVocabulary();
   }, []);
 
   return (
-    <>
-      {loading && <p>Loading...</p>}
-      {records.map((record) => (
-        <div key={record.word}>
-          <h2>{record.word}</h2>
-          <p>
-            <strong>英文解釋!:</strong> {record.meaning_en}
-          </p>
-          {record.audio && (
-            <audio controls>
-              <source src={record.audio.url} type="audio/mpeg" />
-            </audio>
-          )}
-        </div>
-      ))}
-    </>
+    <div className="p-4 ">
+      <h1 className="text-3xl text-center m-8 font-bold">Chobo English</h1>
+      {loading && <p className="text-center text-gray-500">Loading...</p>}
+      <div className="flex flex-col gap-8">
+        {records.map((record) => (
+          <Flashcard key={record.word} record={record} />
+        ))}
+      </div>
+    </div>
   );
 };
 

@@ -44,6 +44,45 @@ app.get("/api/records", async (c) => {
   return c.json(records);
 });
 
+app.get("/api/review", async (c) => {
+  const db = await connectDB();
+  const userRecord = db.collection("userRecord");
+
+  const records = await userRecord
+    .aggregate([
+      {
+        $match: {
+          groupId: "Ca8f4a9df1a7722b8ed4d51527ab6e4b2",
+        },
+      },
+      {
+        $lookup: {
+          from: "vocabulary",
+          localField: "word",
+          foreignField: "word",
+          as: "vocabInfo",
+        },
+      },
+      { $unwind: "$vocabInfo" },
+      {
+        $project: {
+          _id: 0,
+          word: 1,
+          history: 1,
+          meaning_zh: "$vocabInfo.meaning_zh",
+          meaning_en: "$vocabInfo.meaning_en",
+          examples: "$vocabInfo.examples",
+          audio: "$vocabInfo.audio",
+        },
+      },
+      // 👇 這一段是關鍵：隨機抽五筆
+      { $sample: { size: 5 } },
+    ])
+    .toArray();
+
+  return c.json(records);
+});
+
 // Webhook 接收訊息
 app.post("/api/search-words", async (c) => {
   const body = await c.req.json(); // 解析 JSON
