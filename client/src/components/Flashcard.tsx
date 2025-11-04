@@ -16,7 +16,7 @@ function Flashcard({ record }: { record: FlashcardRecord }) {
   const [flipped, setFlipped] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const togglePlay = (e: MouseEvent) => {
+  const togglePlay = (e: React.MouseEvent<HTMLButtonElement>) => {
     const audio = audioRef.current;
     if (!audio) return;
 
