@@ -1,12 +1,22 @@
 import { useState, useRef } from "react";
 import { Play, Pause } from "lucide-react";
 
-function Flashcard({ record }: { record: any }) {
-  const audioRef = useRef(null);
+type FlashcardRecord = {
+  word: string;
+  meaning_en: string;
+  meaning_zh: string;
+  audio: {
+    url: string;
+  } | null;
+  examples: string[] | null;
+};
+
+function Flashcard({ record }: { record: FlashcardRecord }) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [flipped, setFlipped] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
 
-  const togglePlay = (e) => {
+  const togglePlay = (e: MouseEvent) => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -25,7 +35,7 @@ function Flashcard({ record }: { record: any }) {
     <div className="flex items-center">
       <audio
         ref={audioRef}
-        src={record.audio.url}
+        src={record.audio?.url}
         onEnded={() => setIsPlaying(false)}
       />
       <button
